@@ -3,13 +3,24 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { GraphQLClient, ClientContext } from 'graphql-hooks';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
+
+const graphqlClient = new GraphQLClient({
+  url: 'http://etzer-api.herokuapp.com/persons',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 root.render(
   <React.StrictMode>
-    <App />
+    <ClientContext.Provider value={graphqlClient}>
+      <App />
+    </ClientContext.Provider>
   </React.StrictMode>
 );
 
