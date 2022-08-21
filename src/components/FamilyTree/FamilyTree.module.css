@@ -1,4 +1,7 @@
 .tree {
     font-size: 18px;
-    padding: 0 25px 0 25px;
+}
+
+.headerText {
+    font-size: 48px;
 }

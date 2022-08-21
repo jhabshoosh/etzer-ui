@@ -5,6 +5,16 @@ export interface Person {
     children?: Person[];
 }
 
-export type GetRootAncestorResponse = {
-    getRootAncestor: Person
+export interface Relationship {
+    parent: string;
+    child: string;
+}
+
+type GetFamily = {
+    persons: Person[];
+    relationships: Relationship[];
+}
+
+export type GetFamilyResponse = {
+    getFamily: GetFamily;
 }
