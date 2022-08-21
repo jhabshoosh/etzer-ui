@@ -10,7 +10,7 @@ const root = ReactDOM.createRoot(
 );
 
 const graphqlClient = new GraphQLClient({
-  url: 'http://etzer-api.herokuapp.com/persons',
+  url: 'https://etzer-api.herokuapp.com/persons',
   headers: {
     'Content-Type': 'application/json'
   }
