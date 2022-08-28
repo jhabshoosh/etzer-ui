@@ -4,6 +4,8 @@ import styles from './FamilyTree.module.css';
 import ReactFlow, { Controls, Node, Edge } from 'react-flow-renderer';
 import { GetFamilyResponse, Person, Relationship } from '../../models/person';
 import dagre from 'dagre';
+import { FamilyTreeGraph } from './FamilyTreeGraph/FamilyTreeGraph';
+import { FamilyTreeNode } from './FamilyTreeNode/FamilyTreeNode';
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
@@ -30,7 +32,39 @@ interface NodesAndEdges {
     edges: Edge[];
 }
 
-const getLayoutedElements = (nodes: any, edges: any, direction = 'TB') => {
+const mapResponseToNodesAndEdges = (response: GetFamilyResponse): NodesAndEdges => {
+    let nodes: Node[] = [];
+    let edges: Edge[] = [];
+
+    const { getFamily: { persons, relationships } } = response;
+    nodes = persons.map((p: Person) => ({
+        id: p.uuid,
+        position: {
+            x: 0,
+            y: 0
+        },
+        data: {
+            label: p.name,
+            value: p
+        },
+        type: 'familyTreeNode'
+    }));
+
+    edges = relationships.map((r: Relationship) => ({
+        id: `${r.parent}-${r.child}`,
+        source: r.parent,
+        target: r.child,
+    }));
+
+
+    return {
+        nodes,
+        edges,
+    }
+}
+
+const getLayoutedElements = (nodesAndEdges: NodesAndEdges, direction = 'TB') => {
+    const { nodes, edges } = nodesAndEdges;
     const isHorizontal = direction === 'LR';
     dagreGraph.setGraph({ rankdir: direction });
   
@@ -60,38 +94,7 @@ const getLayoutedElements = (nodes: any, edges: any, direction = 'TB') => {
     });
   
     return { nodes, edges };
-};    
-
-const mapResponseToNodesAndEdges = (response: GetFamilyResponse): NodesAndEdges => {
-    let nodes: Node[] = [];
-    let edges: Edge[] = [];
-
-    const { getFamily: { persons, relationships } } = response;
-    nodes = persons.map((p: Person) => ({
-        id: p.uuid,
-        position: {
-            x: 0,
-            y: 0
-        },
-        data: {
-            label: p.name,
-            value: p.name
-        },
-        type: "familyTreeNode",
-    }));
-
-    edges = relationships.map((r: Relationship) => ({
-        id: `${r.parent}-${r.child}`,
-        source: r.parent,
-        target: r.child,
-    }));
-
-
-    return {
-        nodes,
-        edges,
-    }
-}
+};
 
 export const FamilyTree = () => {
 
@@ -104,26 +107,13 @@ export const FamilyTree = () => {
         return <span>Error</span>;
     }
 
-    const { nodes, edges } = !loading && !error ? mapResponseToNodesAndEdges(data) : {nodes: null, edges: null};
-    const { nodes: layoutedNodes, edges: layoutedEdges } = !loading && !error ? getLayoutedElements(
-        nodes,
-        edges
-    ) : {nodes: null, edges: null};
+    const { nodes, edges } = !loading && !error ? getLayoutedElements(mapResponseToNodesAndEdges(data)) : {nodes: [], edges: []};
 
     return (
         <div className={styles.tree} style={{ height: window.innerHeight, width: window.innerWidth}}>
             <span className={styles.headerText}>משפחת חבשוש</span>
-            <ReactFlow
-                nodes={layoutedNodes || nodes}
-                edges={layoutedEdges || edges}
-                // onNodesChange={onNodesChange}
-                // onEdgesChange={onEdgesChange}
-                // onConnect={onConnect}
-                fitView
-            >
-                <Controls />
-            </ReactFlow>
+            {/* <CreateNewPerson /> */}
+            <FamilyTreeGraph initialNodes={nodes} initialEdges={edges} />
         </div>
-
     )
 }

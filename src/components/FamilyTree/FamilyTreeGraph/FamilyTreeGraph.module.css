@@ -1,0 +1,7 @@
+.tree {
+    font-size: 18px;
+}
+
+.react-flow__node-default.selectable selected {
+    border-color: red;
+}
